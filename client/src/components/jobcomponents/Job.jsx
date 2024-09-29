@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const Job = () => {
+  const navigate= useNavigate();
+  const jobId= "axffsd"; 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
       {/* Top section with Company Info, Date, and Save Button */}
@@ -49,7 +52,7 @@ const Job = () => {
         </span>
       </div>
       <div className="flex items-center gap-4 mt-4">
-        <button className="bg-black text-white text-sm font-semibold px-4 py-1 rounded">
+        <button onClick={()=>{navigate(`/description/${jobId}`)}} className="bg-black text-white text-sm font-semibold px-4 py-1 rounded">
           Details
         </button>
         <button className="bg-blue-600 text-white text-sm font-semibold px-4 py-1 rounded">

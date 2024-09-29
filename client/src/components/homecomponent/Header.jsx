@@ -18,8 +18,6 @@ const Header = () => {
             className="flex-grow mt-4 px-4 py-2 bg-slate-200 text-black rounded-l outline-none shadow-lg focus:shadow-xl transition" // Added flex-grow for input field
           />
           <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-r hover:bg-blue-500 transition">
-            {" "}
-            {/* Adjusted button size */}
             Search Job
           </button>
         </div>

@@ -1,6 +1,8 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
+import getDataUri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
 
 
 
@@ -140,12 +142,19 @@ export const logout = async (req, res) => {
 export const updateProfile = async (req, res) => {
   try {
     const { fullname, email, phoneNumber, bio, skills } = req.body;
-    const file = req.file; // Placeholder for file (e.g., resume)
+    const file = req.file; 
+    const fileUri= getDataUri(file);
+    const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+      resource_type: "raw", 
+      folder: "resumes", 
+    });
+    
+    
+    
 
-    // Parse the skills array
     const skillsArray = skills ? skills.split(",") : [];
     
-    // Middleware sets user ID on req object (from authentication)
+
     const userId = req.id;
     
     let user = await User.findById(userId);
@@ -156,20 +165,17 @@ export const updateProfile = async (req, res) => {
       });
     }
 
-    // Update only the fields that are present in the request
     if (fullname) user.fullname = fullname;
     if (email) user.email = email;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (bio) user.profile.bio = bio;
     if (skillsArray.length > 0) user.profile.skills = skillsArray;
-
-    // Placeholder for handling resume upload (e.g., using Cloudinary)
-    if (file) {
-      // Add resume upload logic here, e.g., cloudinary.uploader.upload(file.path)
-      // Then save the file URL in user.profile.resume or similar
+    if(cloudResponse){
+      console.log(cloudResponse.secure_url); 
+      user.profile.resume= cloudResponse.secure_url;
+      user.profile.resumeOriginalName= file.originalname
     }
-
- 
+     
     await user.save();
 
     
