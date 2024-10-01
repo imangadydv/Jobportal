@@ -16,7 +16,7 @@ const Profile = () => {
       <div className="max-w-4xl mx-auto bg-white border border-gray-300 rounded-2xl shadow-lg p-8">
         <div className="flex items-center space-x-4">
           <img
-            src="your-profile-picture-url.jpg" 
+            src={user?.profile?.profilePhoto}
             alt="Profile"
             className="h-24 w-24 rounded-full object-cover border-2 border-blue-500"
           />

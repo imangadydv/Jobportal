@@ -30,7 +30,6 @@ const Login = () => {
     };
   
     try {
-      
       const res = await fetch(`${USER_API_END_POINT}/login`, {
         method: "POST",
         headers: {
@@ -45,16 +44,22 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
   
-      // Handle successful login
+    
       dispatch(setUser(data.user));
+  
+    
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+  
+
       navigate("/");
       toast.success(data.message);
     } catch (error) {
       console.error("Login error:", error.message);
       toast.error(error.message);
     }
-   
   };
+  
   
   
   

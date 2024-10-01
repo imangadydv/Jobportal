@@ -1,11 +1,44 @@
-import React from "react";
+import React, {useEffect} from "react";
+import { JOB_API_END_POINT } from "../utils/constants";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setSingleJob } from "../redux/jobSlice";
 
 const JobDescription = () => {
   const isApplied = true;
+   const params = useParams();
+   const jobId= params.id;
+   const dispatch = useDispatch();
+   const {singleJob } = useSelector(store=>store.job)
+   
+   useEffect(() => {
+    const fetchSingleJob = async () => {
+      try {
+        const res = await fetch(`${JOB_API_END_POINT}/get/${jobId}`, {
+          method: 'GET',
+          credentials: 'include',
+        });
 
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`); 
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          dispatch(setSingleJob(data.jobs));
+        } else {
+          console.error('Failed to fetch jobs:', data.message);
+        }
+      } catch (error) {
+        console.log('Error fetching jobs:', error);
+      }
+    };
+
+    fetchSingleJob();
+  }, [jobId, dispatch]); //i will put here userid later
   return (
     <div className="bg-white max-w-3xl mx-auto p-6 rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold text-gray-800">Frontend Developer</h1>
+      <h1 className="text-2xl font-bold text-gray-800">{singleJob?.title}</h1>
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <span className="bg-blue-100 text-blue-600 text-sm font-semibold px-2.5 py-0.5 rounded">
           Full-Time

@@ -1,6 +1,6 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css"; // For Swiper v9 and newer
+import "swiper/css"; 
 
 const jobCategories = [
   { id: 1, title: "Software Development" },

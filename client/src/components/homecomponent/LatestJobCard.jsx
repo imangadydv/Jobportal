@@ -1,16 +1,16 @@
 import React from 'react';
 
-const LatestJobCard = () => {
+const LatestJobCard = ({job}) => {
   return (
     <div className='border p-4 rounded-lg shadow-lg'>
       <div>
-        <h1 className='text-xl font-bold'>Company Name</h1>
+        <h1 className='text-xl font-bold'>{job?.company?.name}</h1>
         <p className='text-gray-500'>India</p>
       </div>
       <div className='mt-2'>
-        <h1 className='text-lg font-semibold'>Job Title</h1>
+        <h1 className='text-lg font-semibold'>{job?.title}</h1>
         <p className='text-gray-600'>
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+          {job?.description}
         </p>
       </div>
       <div className='mt-3'>

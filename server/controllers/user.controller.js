@@ -17,6 +17,11 @@ export const register = async (req, res) => {
         success: false,
       });
     }
+
+  const file = req.file;
+  const fileUri = getDataUri(file);
+  const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+
     //check if already exists
     const user = await User.findOne({ email });
     if (user) {
@@ -35,6 +40,9 @@ export const register = async (req, res) => {
       phoneNumber,
       password: hashedPassword,
       role,
+      profile:{
+        profilePhoto:cloudResponse.secure_url,
+      }
     });
 
     return res.status(201).json({
@@ -95,7 +103,7 @@ export const login = async (req, res) => {
       expiresIn: "1d",
     });
 
-    // Create user data object
+
     const userData = {
       _id: user._id,
       fullname: user.fullname,
@@ -104,6 +112,8 @@ export const login = async (req, res) => {
       role: user.role,
       profile: user.profile,
     };
+
+
 
     return res
       .status(200)
