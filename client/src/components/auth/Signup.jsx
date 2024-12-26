@@ -1,226 +1,164 @@
-import { useState } from "react";
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { USER_API_END_POINT } from "../../utils/constants.js";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-
+import React, { useEffect, useState } from 'react'
+import Navbar from '../shared/Navbar'
+import { Label } from '../ui/label'
+import { Input } from '../ui/input'
+import { RadioGroup } from '../ui/radio-group'
+import { Button } from '../ui/button'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { USER_API_END_POINT } from '@/utils/constant'
+import { toast } from 'sonner'
+import { useDispatch, useSelector } from 'react-redux'
+import { setLoading } from '@/redux/authSlice'
+import { Loader2 } from 'lucide-react'
 
 const Signup = () => {
-  const [input, setInput] = useState({
-    fullname: "",
-    email: "",
-    phoneNumber: "",
-    password: "",
-    role: "",
-    file: "",
-  });
 
-  const navigate = useNavigate();
-  const changeEventHandler = (e) => {
-    setInput({
-      ...input,
-      [e.target.name]: e.target.value,
+    const [input, setInput] = useState({
+        fullname: "",
+        email: "",
+        phoneNumber: "",
+        password: "",
+        role: "",
+        file: ""
     });
-  };
+    const {loading,user} = useSelector(store=>store.auth);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-  const changeFileHandler = (e) => {
-    setInput({ ...input, file: e.target.files?.[0] });
-  };
-
-  const submitHandler = async (e) => {
-    e.preventDefault();
-  
-    const formData = new FormData();
-    formData.append("fullname", input.fullname);
-    formData.append("email", input.email);
-    formData.append("phoneNumber", input.phoneNumber);
-    formData.append("password", input.password);
-    formData.append("role", input.role);
-  
-    if (input.file) {
-      formData.append("file", input.file);
+    const changeEventHandler = (e) => {
+        setInput({ ...input, [e.target.name]: e.target.value });
     }
-  
-    try {
-      console.log("Sending request to API:", `${USER_API_END_POINT}/register`);
-      
-      const response = await fetch(`${USER_API_END_POINT}/register`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',  // Same as withCredentials: true in axios
-      });
-  
-      console.log("Response Status:", response.status);
-  
-      // Check if the response was not ok
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.log("Response Body:", errorData);
-  
-        // Show appropriate toast based on the error message
-        if (errorData.message === "User already exists!") {
-            navigate("/login");
-          toast.error("User already exists. Please try logging in.");
-        } else {
-          toast.error(errorData.message || "Registration failed. Please try again.");
+    const changeFileHandler = (e) => {
+        setInput({ ...input, file: e.target.files?.[0] });
+    }
+    const submitHandler = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();    //formdata object
+        formData.append("fullname", input.fullname);
+        formData.append("email", input.email);
+        formData.append("phoneNumber", input.phoneNumber);
+        formData.append("password", input.password);
+        formData.append("role", input.role);
+        if (input.file) {
+            formData.append("file", input.file);
         }
-        return;
-      }
-  
-      const data = await response.json(); // Parse JSON response
-      console.log("Response Data:", data);
-  
-      if (data.success) {
-        navigate("/login");
-        toast.success(data.message);  // Success toast
-      } else {
-        toast.error(data.message || "Failed to register");  // Generic error toast
-      }
-  
-    } catch (error) {
-      console.error('Fetch Error:', error.message);
-      toast.error("Something went wrong, please try again.");
+
+        try {
+            console.log(USER_API_END_POINT);
+
+            dispatch(setLoading(true));
+            const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
+                headers: { 'Content-Type': "multipart/form-data" },
+                withCredentials: true,
+            });
+            if (res.data.success) {
+                navigate("/login");
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            console.log(error);
+            const errorMessage = error.response?.data?.message || 'Something went wrong!';
+            toast.error(errorMessage);
+        } finally{
+            dispatch(setLoading(false));
+        }
     }
-  };
-  
-  
-  
-  
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 overflow-hidden pt-0">
-      
-      <form onSubmit={submitHandler} className="bg-white p-6 rounded-lg shadow-md max-w-md w-full">
-       
-        <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
-        <div className="mb-2">
-          <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="full-name"
-          >
-            Full Name
-          </label>
-          <input
-            type="text"
-            name="fullname"
-            value={input.fullname}
-            onChange={changeEventHandler}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-          />
-        </div>
-        <div className="mb-2">
-          <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="email"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={input.email}
-            onChange={changeEventHandler}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-          />
-        </div>
-        <div className="mb-2">
-          <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="phone"
-          >
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            name="phoneNumber"
-            value={input.phoneNumber}
-            onChange={changeEventHandler}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-          />
-        </div>
-        <div className="mb-2">
-          <label
-            className="block text-sm font-medium text-gray-700"
-            htmlFor="password"
-          >
-            Password
-          </label>
-          <input
-            type="password"
-            name="password"
-            value={input.password}
-            onChange={changeEventHandler}
-            required
-            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
-          />
-        </div>
-        <div className="mb-2 flex items-center">
-          <div className="mr-4">
-            <label className="block text-sm font-medium text-gray-700">
-              User
-            </label>
-            <div className="flex items-center">
-              <label className="mr-4">
-                <input
-                  type="radio"
-                  name="role"
-                  value="student"
-                  checked={input.role === "student"}
-                  onChange={changeEventHandler}
-                  className="mr-1"
-                />
-                Student
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="role"
-                  value="recruiter"
-                  checked={input.role === "recruiter"}
-                  onChange={changeEventHandler}
-                  className="mr-1"
-                />
-                Recruiter
-              </label>
+
+    useEffect(()=>{
+        if(user){
+            navigate("/");
+        }
+    },[])
+    return (
+        <div>
+            <Navbar />
+            <div className='flex items-center justify-center max-w-7xl mx-auto'>
+                <form onSubmit={submitHandler} className='w-1/2 border border-gray-200 rounded-md p-4 my-10'>
+                    <h1 className='font-bold text-xl mb-5'>Sign Up</h1>
+                    <div className='my-2'>
+                        <Label>Full Name</Label>
+                        <Input
+                            type="text"
+                            value={input.fullname}
+                            name="fullname"
+                            onChange={changeEventHandler}
+                            placeholder="Your Name"
+                        />
+                    </div>
+                    <div className='my-2'>
+                        <Label>Email</Label>
+                        <Input
+                            type="email"
+                            value={input.email}
+                            name="email"
+                            onChange={changeEventHandler}
+                            placeholder="mail@gmail.com"
+                        />
+                    </div>
+                    <div className='my-2'>
+                        <Label>Phone Number</Label>
+                        <Input
+                            type="text"
+                            value={input.phoneNumber}
+                            name="phoneNumber"
+                            onChange={changeEventHandler}
+                            placeholder="8080808080"
+                        />
+                    </div>
+                    <div className='my-2'>
+                        <Label>Password</Label>
+                        <Input
+                            type="password"
+                            value={input.password}
+                            name="password"
+                            onChange={changeEventHandler}
+                            placeholder="123@choice"
+                        />
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <RadioGroup className="flex items-center gap-4 my-5">
+                            <div className="flex items-center space-x-2">
+                                <Input
+                                    type="radio"
+                                    name="role"
+                                    value="student"
+                                    checked={input.role === 'student'}
+                                    onChange={changeEventHandler}
+                                    className="cursor-pointer"
+                                />
+                                <Label htmlFor="r1">Student</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Input
+                                    type="radio"
+                                    name="role"
+                                    value="recruiter"
+                                    checked={input.role === 'recruiter'}
+                                    onChange={changeEventHandler}
+                                    className="cursor-pointer"
+                                />
+                                <Label htmlFor="r2">Recruiter</Label>
+                            </div>
+                        </RadioGroup>
+                        <div className='flex items-center gap-2'>
+                            <Label>Profile</Label>
+                            <Input
+                                accept="image/*"
+                                type="file"
+                                onChange={changeFileHandler}
+                                className="cursor-pointer"
+                            />
+                        </div>
+                    </div>
+                    {
+                        loading ? <Button className="w-full my-4"> <Loader2 className='mr-2 h-4 w-4 animate-spin' /> Please wait </Button> : <Button type="submit" className="w-full my-4">Signup</Button>
+                    }
+                    <span className='text-sm'>Already have an account? <Link to="/login" className='text-blue-600'>Login</Link></span>
+                </form>
             </div>
-          </div>
-
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-              htmlFor="profile-upload"
-            >
-              Profile
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={changeFileHandler}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2"
-            />
-          </div>
         </div>
-        <button
-          type="submit"
-          className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        >
-          Sign Up
-        </button>
-        <div className="mt-4 text-center">
-          <span>
-            Already have an account?{" "}
-            <Link to="/login" className="text-blue-500">
-              Login
-            </Link>
-          </span>
-        </div>
-      </form>
-    </div>
-  );
-};
+    )
+}
 
-export default Signup;
+export default Signup
