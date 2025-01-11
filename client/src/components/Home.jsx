@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
+  console.log(import.meta.env.VITE_USER_API_END_POINT);
   useGetAllJobs();
   const { user } = useSelector(store => store.auth);
   const navigate = useNavigate();
