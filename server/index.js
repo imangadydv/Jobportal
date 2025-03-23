@@ -24,7 +24,10 @@ app.use(cookieParser());
 app.use(cors({ origin: process.env.VITE_URL, credentials: true }));
 
 const PORT = process.env.PORT || 3000;
-
+app.get('/', (req, res) => {
+    res.send('Job Portal Backend is running');
+  });
+  
 
 // api's
 app.use("/api/v1/user", userRoute);
